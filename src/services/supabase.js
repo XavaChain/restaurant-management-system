@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const getEnv = (key) => {
+  const val = import.meta.env[key];
+  return typeof val === 'string' ? val.trim().replace(/^["']|["']$/g, '') : '';
+};
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase credentials missing. Ensure VITE_SUPABASE_URL & VITE_SUPABASE_ANON_KEY are set.");
-}
+const supabaseUrl = getEnv('VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
 
-export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
+const validUrl = supabaseUrl.startsWith('http') ? supabaseUrl : 'https://placeholder.supabase.co';
+const validKey = supabaseAnonKey || 'placeholder-key';
+
+export const supabase = createClient(validUrl, validKey);
