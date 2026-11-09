@@ -17,10 +17,12 @@ export const AuthProvider = ({ children }) => {
         .single();
       if (!error && data) {
         setProfile(data);
+        return data;
       }
     } catch (err) {
       console.error('Profile fetch failed:', err);
     }
+    return null;
   };
 
   useEffect(() => {
@@ -42,10 +44,10 @@ export const AuthProvider = ({ children }) => {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       } else {
         setProfile(null);
       }
@@ -59,6 +61,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginWithEmail = async (emailOrMobile, password) => {
+    setLoading(true);
     const formattedEmail = emailOrMobile.includes('@')
       ? emailOrMobile.trim()
       : `${emailOrMobile.replace(/[^0-9]/g, '')}@sapna.local`;
@@ -67,7 +70,17 @@ export const AuthProvider = ({ children }) => {
       email: formattedEmail,
       password: password,
     });
-    if (error) throw error;
+
+    if (error) {
+      setLoading(false);
+      throw error;
+    }
+
+    if (data?.user) {
+      setUser(data.user);
+      await fetchProfile(data.user.id);
+    }
+    setLoading(false);
     return data;
   };
 
