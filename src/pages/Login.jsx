@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Phone, AlertCircle } from 'lucide-react';
+import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function Login() {
-  const [mobile, setMobile] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { loginWithPhone } = useAuth();
+  const { loginWithEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await loginWithPhone(mobile, password);
+      await loginWithEmail(email, password);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
@@ -43,15 +43,15 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Mobile Number</label>
+            <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Email Address</label>
             <div className="relative">
-              <Phone className="w-5 h-5 text-slate-500 absolute left-3 top-3" />
+              <Mail className="w-5 h-5 text-slate-500 absolute left-3 top-3" />
               <input
-                type="text"
+                type="email"
                 required
-                placeholder="01700000000"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
+                placeholder="thecozysecret@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
@@ -75,9 +75,9 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition shadow-lg disabled:opacity-50 mt-2"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition shadow-lg disabled:opacity-50 mt-2 cursor-pointer"
           >
-            {loading ? 'Logging in...' : 'Sign In'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
       </div>
