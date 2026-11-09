@@ -24,13 +24,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    let mounted = true;
+
+    const initAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (mounted && data?.session) {
+          setUser(data.session.user);
+          await fetchProfile(data.session.user.id);
+        }
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
@@ -39,14 +49,20 @@ export const AuthProvider = ({ children }) => {
       } else {
         setProfile(null);
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loginWithPhone = async (mobileNumber, password) => {
-    const formattedEmail = `${mobileNumber.replace(/[^0-9]/g, '')}@sapna.local`;
+    const formattedEmail = mobileNumber.includes('@')
+      ? mobileNumber
+      : `${mobileNumber.replace(/[^0-9]/g, '')}@sapna.local`;
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: formattedEmail,
       password: password,
