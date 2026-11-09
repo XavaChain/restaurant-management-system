@@ -6,26 +6,27 @@ import { Lock, Mail, AlertCircle, RefreshCw } from 'lucide-react';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errorDetails, setErrorDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const { loginWithEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrorDetails(null);
     setLoading(true);
 
     try {
       await loginWithEmail(email, password);
       navigate('/');
     } catch (err) {
-      console.error('Login error details:', err);
-      if (err.message === 'Failed to fetch' || err.toString().includes('Failed to fetch')) {
-        setError('Supabase সার্ভারে কানেক্ট করা যাচ্ছে না। অনুগ্রহ করে ফোনের VPN/AdBlocker বন্ধ করুন অথবা Supabase প্রজেক্টের Status চেক করুন।');
-      } else {
-        setError(err.message || 'Login failed. Please check your credentials.');
-      }
+      console.error('Raw login error:', err);
+      setErrorDetails({
+        name: err.name || 'Error',
+        message: err.message || String(err),
+        status: err.status || 'N/A',
+        stack: err.stack || null,
+      });
     } finally {
       setLoading(false);
     }
@@ -39,10 +40,15 @@ export default function Login() {
           <p className="text-slate-400 text-sm mt-1">Restaurant Management System</p>
         </div>
 
-        {error && (
-          <div className="mb-4 bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-sm flex items-start space-x-2">
-            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-            <span className="leading-relaxed">{error}</span>
+        {errorDetails && (
+          <div className="mb-4 bg-red-950/90 border border-red-800 text-red-200 p-4 rounded-xl text-sm space-y-2">
+            <div className="flex items-center space-x-2 font-bold text-red-400">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{errorDetails.name} (Status: {errorDetails.status})</span>
+            </div>
+            <p className="font-mono text-xs bg-slate-900/80 p-2 rounded border border-red-900/50 break-all text-red-300">
+              {errorDetails.message}
+            </p>
           </div>
         )}
 
