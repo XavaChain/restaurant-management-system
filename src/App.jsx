@@ -23,11 +23,28 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const DefaultRedirect = () => {
-  const { profile } = useAuth();
-  if (!profile) return <Navigate to="/login" replace />;
-  if (profile.role === 'chef') return <Navigate to="/chef" replace />;
-  if (profile.role === 'waiter') return <Navigate to="/waiter" replace />;
-  return <Navigate to="/admin" replace />;
+  const { user, profile, loading } = useAuth();
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-400">Loading user profile...</div>;
+  }
+
+  if (!user || !profile) {
+    return <Navigate to="/login" replace />;
+  }
+
+  switch (profile.role) {
+    case 'owner':
+      return <Navigate to="/owner" replace />;
+    case 'admin':
+      return <Navigate to="/admin" replace />;
+    case 'chef':
+      return <Navigate to="/chef" replace />;
+    case 'waiter':
+      return <Navigate to="/waiter" replace />;
+    default:
+      return <Navigate to="/login" replace />;
+  }
 };
 
 export default function App() {
@@ -69,6 +86,8 @@ export default function App() {
             <OwnerDashboard />
           </ProtectedRoute>
         } />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
