@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, AlertCircle } from 'lucide-react';
+import { Lock, Mail, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -20,7 +20,12 @@ export default function Login() {
       await loginWithEmail(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      console.error('Login error details:', err);
+      if (err.message === 'Failed to fetch' || err.toString().includes('Failed to fetch')) {
+        setError('Supabase সার্ভারে কানেক্ট করা যাচ্ছে না। অনুগ্রহ করে ফোনের VPN/AdBlocker বন্ধ করুন অথবা Supabase প্রজেক্টের Status চেক করুন।');
+      } else {
+        setError(err.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
@@ -35,9 +40,9 @@ export default function Login() {
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-sm flex items-center space-x-2">
-            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-            <span>{error}</span>
+          <div className="mb-4 bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-sm flex items-start space-x-2">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <span className="leading-relaxed">{error}</span>
           </div>
         )}
 
@@ -49,7 +54,7 @@ export default function Login() {
               <input
                 type="email"
                 required
-                placeholder="thecozysecret@gmail.com"
+                placeholder="owner@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -75,9 +80,16 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition shadow-lg disabled:opacity-50 mt-2 cursor-pointer"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition shadow-lg disabled:opacity-50 mt-2 cursor-pointer flex items-center justify-center space-x-2"
           >
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
           </button>
         </form>
       </div>
