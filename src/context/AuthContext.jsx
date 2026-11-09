@@ -58,10 +58,10 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const loginWithPhone = async (mobileNumber, password) => {
-    const formattedEmail = mobileNumber.includes('@')
-      ? mobileNumber
-      : `${mobileNumber.replace(/[^0-9]/g, '')}@sapna.local`;
+  const loginWithEmail = async (emailOrMobile, password) => {
+    const formattedEmail = emailOrMobile.includes('@')
+      ? emailOrMobile.trim()
+      : `${emailOrMobile.replace(/[^0-9]/g, '')}@sapna.local`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: formattedEmail,
@@ -78,7 +78,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, loginWithPhone, logout, fetchProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      profile, 
+      loading, 
+      loginWithEmail, 
+      loginWithPhone: loginWithEmail, 
+      logout, 
+      fetchProfile 
+    }}>
       {children}
     </AuthContext.Provider>
   );
