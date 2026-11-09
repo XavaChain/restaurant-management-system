@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchMenuItems, fetchDailySummary, fetchStockOverview } from '../services/dataService';
 import { supabase } from '../services/supabase';
-import { Utensils, ShoppingBag, DollarSign, PackageAlert, TrendingUp } from 'lucide-react';
+import { Utensils, ShoppingBag, DollarSign, AlertTriangle, TrendingUp } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [items, setItems] = useState([]);
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
       {/* Low Stock Warning Banner */}
       {lowStockCount > 0 && (
         <div className="bg-amber-950/80 border border-amber-800 text-amber-200 px-4 py-3 rounded-xl flex items-center space-x-3 text-sm">
-          <PackageAlert className="w-5 h-5 text-amber-400 shrink-0" />
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
           <span><strong>Attention:</strong> {lowStockCount} inventory items have reached minimum safety stock levels!</span>
         </div>
       )}
@@ -139,4 +139,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-                  }
+                      }
