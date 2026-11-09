@@ -1,3 +1,16 @@
+-- 0. CLEANUP EXISTING TYPES & TABLES (Fixes Error 42710)
+DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS account_status CASCADE;
+DROP TYPE IF EXISTS stock_movement_type CASCADE;
+DROP TABLE IF EXISTS public.audit_logs CASCADE;
+DROP TABLE IF EXISTS public.payments CASCADE;
+DROP TABLE IF EXISTS public.stock_movements CASCADE;
+DROP TABLE IF EXISTS public.stock_items CASCADE;
+DROP TABLE IF EXISTS public.sales_tickets CASCADE;
+DROP TABLE IF EXISTS public.cooking_tickets CASCADE;
+DROP TABLE IF EXISTS public.menu_items CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+
 -- 1. EXTENSIONS & TYPES
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -146,9 +159,6 @@ CREATE POLICY "Cooking tickets insert by Chef, Admin, Owner" ON public.cooking_t
         is_auth_active() AND get_auth_role() IN ('chef', 'admin', 'owner')
     );
 
--- Prevent UPDATE & DELETE on Cooking Tickets
--- No policy added for UPDATE or DELETE => automatically denied.
-
 -- SALES TICKETS POLICIES (Append-Only)
 CREATE POLICY "Sales tickets read by all staff" ON public.sales_tickets
     FOR SELECT TO authenticated USING (is_auth_active());
@@ -157,8 +167,6 @@ CREATE POLICY "Sales tickets insert by Waiter, Admin, Owner" ON public.sales_tic
     FOR INSERT TO authenticated WITH CHECK (
         is_auth_active() AND get_auth_role() IN ('waiter', 'admin', 'owner')
     );
-
--- Prevent UPDATE & DELETE on Sales Tickets
 
 -- STOCK ITEMS POLICIES
 CREATE POLICY "Stock items read by all staff" ON public.stock_items
@@ -294,3 +302,4 @@ INSERT INTO public.stock_items (stock_name, unit, minimum_stock) VALUES
 ('Chicken', 'kg', 15.0),
 ('Beef', 'kg', 10.0),
 ('Cheese', 'kg', 5.0);
+    
